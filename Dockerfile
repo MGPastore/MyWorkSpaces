@@ -4,6 +4,14 @@ FROM ubuntu:20.04
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
+    build-essential \
+    sqlite3 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instala Node.js y npm
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest \
     && rm -rf /var/lib/apt/lists/*
 
 # Agrega el repositorio de code-server
