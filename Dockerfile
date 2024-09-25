@@ -1,17 +1,13 @@
-FROM ghcr.io/coder/code-server:latest
+FROM ubuntu:20.04
 
-# Instalar dependencias necesarias
+# Instala dependencias necesarias
 RUN apt-get update && apt-get install -y \
     curl \
-    build-essential \
+    gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# Descargar fixuid y compilarlo
-RUN curl -L https://github.com/vrutkovs/fixuid/releases/latest/download/fixuid -o /usr/local/bin/fixuid && \
-    chmod u+s /usr/local/bin/fixuid
-
-# Asegúrate de que fixuid sea propiedad de root y tenga el bit setuid
-RUN chown root:root /usr/local/bin/fixuid && chmod u+s /usr/local/bin/fixuid
+# Agrega el repositorio de code-server
+RUN curl -fsSL https://code-server.dev/install.sh | sh
 
 # Establece el directorio de trabajo
 WORKDIR /home/coder/project
@@ -20,4 +16,4 @@ WORKDIR /home/coder/project
 EXPOSE 8080
 
 # Inicia el código
-CMD ["code-server", "--host", "0.0.0.0", "--port", "8080", "--auth", "password"]
+CMD ["code-server", "--host", "0.0.0.0", "--port", "8080", "--auth", "none"]
