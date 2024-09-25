@@ -1,10 +1,14 @@
 FROM ghcr.io/coder/code-server:latest
 
-# Instala fixuid
-RUN apt-get update && apt-get install -y fixuid
+# Instalar dependencias necesarias
+RUN apt-get update && apt-get install -y \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copia el script fixuid al contenedor
-COPY fixuid /usr/local/bin/fixuid
+# Descargar fixuid y compilarlo
+RUN curl -L https://github.com/vrutkovs/fixuid/releases/latest/download/fixuid -o /usr/local/bin/fixuid && \
+    chmod u+s /usr/local/bin/fixuid
 
 # Asegúrate de que fixuid sea propiedad de root y tenga el bit setuid
 RUN chown root:root /usr/local/bin/fixuid && chmod u+s /usr/local/bin/fixuid
