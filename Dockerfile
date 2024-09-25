@@ -1,4 +1,4 @@
-FROM coder/code-server:latest
+FROM ghcr.io/coder/code-server:latest
 
 # Configure the working directory
 WORKDIR /home/coder/project
