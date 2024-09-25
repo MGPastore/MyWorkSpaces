@@ -1,6 +1,9 @@
 FROM ubuntu:20.04
 
-# Instala dependencias necesarias
+# Establece la zona horaria (ejemplo: "America/New_York")
+ENV TZ=America/New_York
+
+# Instala dependencias necesarias y establece locales
 RUN apt-get update && apt-get install -y \
     curl \
     gnupg \
@@ -9,6 +12,9 @@ RUN apt-get update && apt-get install -y \
     apt-transport-https \
     ca-certificates \
     software-properties-common \
+    tzdata \
+    && ln -fs /usr/share/zoneinfo/$TZ /etc/localtime \
+    && dpkg-reconfigure -f noninteractive tzdata \
     && rm -rf /var/lib/apt/lists/*
 
 # Instala Node.js 18.x y npm
