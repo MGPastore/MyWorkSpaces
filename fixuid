@@ -1,0 +1,4 @@
+#!/bin/bash
+# Este script se asegura de que el contenedor esté en modo "fixuid"
+# (este es un ejemplo simple; modifica según tus necesidades)
+exec "$@"
