@@ -1,30 +1,24 @@
-# Usa una imagen base de Debian Slim (más ligera)
-FROM debian:bookworm-slim
+FROM node:20-alpine
 
-# Establece el entorno como no interactivo
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Actualiza el sistema e instala Node.js, npm, git y SQLite3
-RUN apt-get update && apt-get install -y \
-    curl \
+# Instala dependencias del sistema: Git, SQLite, build-base y Python
+RUN apk add --no-cache \
     git \
-    sqlite3 \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    sqlite \
+    sqlite-dev \
+    build-base \
+    python3 \
+    make \
+    g++
 
-# Instala code-server con permisos globales
+# Instala code-server globalmente con permisos
 RUN npm install -g code-server@4.93.1 --unsafe-perm
 
 # Crea un directorio de trabajo para code-server
 WORKDIR /root/project
 
-# Expone el puerto 8080 (donde code-server estará escuchando)
+# Expone el puerto que code-server utiliza por defecto
 EXPOSE 8080
 
-# Establece una contraseña para iniciar sesión en code-server
-ENV PASSWORD=my_secure_password
+# Comando por defecto para iniciar code-server
+CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "."]
 
-# Inicia code-server cuando el contenedor esté en ejecución
-CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "--auth", "password", "--disable-telemetry"]
