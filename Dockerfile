@@ -1,29 +1,39 @@
-# Usar la imagen base de Ubuntu
+# Usa una imagen base de Ubuntu
 FROM ubuntu:20.04
 
-# Instalar dependencias
-RUN apt-get update && \
-    apt-get install -y curl git software-properties-common && \
-    curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs npm && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Establecer la variable de entorno para evitar interacciones
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Crear un directorio de trabajo
+# Instalar dependencias necesarias y configurar la zona horaria
+RUN apt-get update && \
+    apt-get install -y tzdata curl && \
+    ln -fs /usr/share/zoneinfo/America/Montevideo /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata && \
+    apt-get install -y git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Instalar Node.js y npm
+RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Establecer el directorio de trabajo
 WORKDIR /app
 
-# Instalar code-server globalmente
-RUN curl -fOL https://github.com/coder/code-server/releases/download/v4.93.1/code-server_4.93.1_amd64.deb && \
-    dpkg -i code-server_4.93.1_amd64.deb && \
-    apt-get install -f && \
-    rm code-server_4.93.1_amd64.deb
+# Instalar Code Server
+RUN curl -fsSL https://code-server.dev/install.sh | sh
 
-# Exponer el puerto que utilizará code-server
+# Configurar el directorio de configuración de Code Server
+RUN mkdir -p /home/coder && \
+    echo "bind-addr: 0.0.0.0:8080" >> /home/coder/config.yaml && \
+    echo "auth: password" >> /home/coder/config.yaml && \
+    echo "password: mypassword" >> /home/coder/config.yaml && \
+    echo "cert: false" >> /home/coder/config.yaml
+
+# Exponer el puerto 8080 para acceder a Code Server
 EXPOSE 8080
 
-# Copiar el archivo de configuración de code-server
-RUN mkdir -p ~/.config/code-server && \
-    echo "bind-addr: 0.0.0.0:8080\npassword: ${PASSWORD}\n" > ~/.config/code-server/config.yaml && \
-    cat ~/.config/code-server/config.yaml
-
-# Comando para ejecutar code-server
-CMD ["code-server", "--host", "0.0.0.0", "--port", "8080", "--auth", "password", "--password", "${PASSWORD}"]
+# Comando por defecto al ejecutar el contenedor
+CMD ["code-server", "--config", "/home/coder/config.yaml", "--user-data-dir", "/home/coder"]
