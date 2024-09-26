@@ -1,14 +1,14 @@
+# Usar la imagen base de Node.js
 FROM node:20
 
-# Instalar dependencias necesarias
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    libkrb5-dev \
-    python3 \
-    && rm -rf /var/lib/apt/lists/*
+# Crear un directorio de trabajo
+WORKDIR /app
 
-# Instala code-server globalmente con permisos
+# Instalar code-server globalmente
 RUN npm install -g code-server@4.93.1 --unsafe-perm
 
-# Crea un directorio de trabajo para code-server
-WORKDIR /home/coder/project
+# Exponer el puerto que utilizará code-server
+EXPOSE 8080
+
+# Comando para ejecutar code-server con autenticación usando la variable de entorno PASSWORD
+CMD ["code-server", "--host", "0.0.0.0", "--port", "8080", "--auth", "password", "--password", "${PASSWORD}"]
