@@ -19,8 +19,7 @@ RUN npm install -g code-server@4.93.1 --unsafe-perm
 # Exponer el puerto que utilizará code-server
 EXPOSE 8080
 
-# Configurar la variable de entorno para la contraseña
-ENV PASS="kachina"  # Cambia "your_password_here" si deseas una contraseña predeterminada
+ENV PASS="kachina"
 
-# Comando para ejecutar code-server con autenticación usando la variable de entorno PASS
+
 CMD ["sh", "-c", "code-server --host 0.0.0.0 --port 8080 --auth password --password \"$PASS\""]
