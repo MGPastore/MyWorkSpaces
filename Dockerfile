@@ -1,24 +1,14 @@
-FROM node:20-alpine
+FROM node:20
 
-# Instala dependencias del sistema: Git, SQLite, build-base y Python
-RUN apk add --no-cache \
-    git \
-    sqlite \
-    sqlite-dev \
-    build-base \
+# Instalar dependencias necesarias
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libkrb5-dev \
     python3 \
-    make \
-    g++
+    && rm -rf /var/lib/apt/lists/*
 
 # Instala code-server globalmente con permisos
 RUN npm install -g code-server@4.93.1 --unsafe-perm
 
 # Crea un directorio de trabajo para code-server
-WORKDIR /root/project
-
-# Expone el puerto que code-server utiliza por defecto
-EXPOSE 8080
-
-# Comando por defecto para iniciar code-server
-CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "."]
-
+WORKDIR /home/coder/project
