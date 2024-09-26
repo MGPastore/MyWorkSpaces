@@ -1,34 +1,28 @@
 # Usar la imagen base de Ubuntu
-FROM ubuntu:22.04
+FROM ubuntu:20.04
 
-# Actualizar los repositorios e instalar dependencias
+# Instalar dependencias
 RUN apt-get update && \
-    apt-get install -y \
-    curl \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-
-# Instalar Node.js v20 y npm
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y curl git && \
+    apt-get install -y software-properties-common && \
+    curl -sL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y npm
 
-# Verificar las versiones instaladas
-RUN node -v && npm -v && git --version
+# Crear un directorio de trabajo
+WORKDIR /app
 
-# Establecer la versión de code-server
-ENV VERSION=4.93.1
-
-# Descargar e instalar code-server usando el archivo .deb
-RUN curl -fOL https://github.com/coder/code-server/releases/download/v$VERSION/code-server_${VERSION}_amd64.deb && \
-    apt-get install -y ./code-server_${VERSION}_amd64.deb && \
-    rm code-server_${VERSION}_amd64.deb
+# Instalar code-server globalmente
+RUN curl -fOL https://github.com/coder/code-server/releases/download/v4.93.1/code-server_4.93.1_amd64.deb && \
+    dpkg -i code-server_4.93.1_amd64.deb && \
+    apt-get install -f
 
 # Exponer el puerto que utilizará code-server
 EXPOSE 8080
 
-# Configurar la variable de entorno para la contraseña
-ENV PASS="kachina" 
+# Copiar el archivo de configuración de code-server
+RUN mkdir -p ~/.config/code-server && \
+    echo "bind-addr: 0.0.0.0:8080\npassword: ${PASSWORD}\n" > ~/.config/code-server/config.yaml
 
-# Comando para ejecutar code-server con autenticación usando la variable de entorno PASS
-CMD ["sh", "-c", "code-server --host 0.0.0.0 --port 8080 --auth password --password \"$PASS\""]
+# Comando para ejecutar code-server
+CMD ["code-server"]
