@@ -1,22 +1,20 @@
-# Usa una imagen base de Arch Linux
-FROM archlinux:latest
+# Usa una imagen base de Debian Slim (más ligera)
+FROM debian:bookworm-slim
 
-# Actualiza el sistema e instala las dependencias necesarias
-RUN pacman -Syu --noconfirm && \
-    pacman -S --noconfirm \
-    base-devel \
-    git \
-    python \
-    python-pip \
-    krb5 \
-    nodejs \
-    npm \
+# Establece el entorno como no interactivo
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Actualiza el sistema e instala Node.js, npm, git y SQLite3
+RUN apt-get update && apt-get install -y \
     curl \
-    wget \
-    vim \
-    && pacman -Scc --noconfirm
+    git \
+    sqlite3 \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instala code-server con permisos globales (--unsafe-perm)
+# Instala code-server con permisos globales
 RUN npm install -g code-server@4.93.1 --unsafe-perm
 
 # Crea un directorio de trabajo para code-server
@@ -26,7 +24,7 @@ WORKDIR /root/project
 EXPOSE 8080
 
 # Establece una contraseña para iniciar sesión en code-server
-ENV PASSWORD=kachinateamo
+ENV PASSWORD=my_secure_password
 
 # Inicia code-server cuando el contenedor esté en ejecución
 CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "--auth", "password", "--disable-telemetry"]
