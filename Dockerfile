@@ -1,22 +1,25 @@
-# Usa la imagen base de Alpine, más ligera que Ubuntu
+# Usa la imagen base de Alpine
 FROM alpine:latest
 
 # Establece el idioma y la localización
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
-# Instala dependencias: curl, git, nodejs, npm y sqlite3
+# Instala dependencias necesarias
 RUN apk update && apk add --no-cache \
     curl \
     git \
     nodejs \
     npm \
     sqlite \
+    python3 \
+    make \
+    g++ \
     bash \
     && rm -rf /var/cache/apk/*
 
-# Instala code-server
-RUN curl -fsSL https://code-server.dev/install.sh | sh
+# Instala code-server utilizando npm, con todas las dependencias necesarias
+RUN npm install -g code-server@4.93.1 --unsafe-perm
 
 # Establece una contraseña para iniciar sesión en code-server
 ENV PASSWORD=kachinateamo
