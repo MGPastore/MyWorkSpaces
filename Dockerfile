@@ -1,24 +1,31 @@
-# Usa la imagen base de Ubuntu 20.04
-FROM ubuntu:20.04
+# Usa la imagen base de Alpine, más ligera que Ubuntu
+FROM alpine:latest
 
 # Establece el idioma y la localización
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
 
-# Instala las dependencias necesarias
-RUN apt-get update && apt-get install -y \
+# Instala dependencias: curl, git, nodejs, npm y sqlite3
+RUN apk update && apk add --no-cache \
     curl \
     git \
-    && rm -rf /var/lib/apt/lists/*
+    nodejs \
+    npm \
+    sqlite \
+    bash \
+    && rm -rf /var/cache/apk/*
 
-# Agrega el repositorio de code-server
+# Instala code-server
 RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+# Establece una contraseña para iniciar sesión en code-server
+ENV PASSWORD=kachinateamo
 
 # Establece el directorio de trabajo
 WORKDIR /home/coder/project
 
-# Expone el puerto para code-server
+# Expone el puerto de code-server
 EXPOSE 8080
 
-# Inicia code-server
-CMD ["code-server", "--host", "0.0.0.0", "--port", "8080", "--auth", "none"]
+# Inicia code-server con autenticación de contraseña
+CMD ["code-server", "--host", "0.0.0.0", "--port", "8080", "--auth", "password"]
