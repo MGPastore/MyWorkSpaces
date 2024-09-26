@@ -16,7 +16,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
 # Verificar las versiones instaladas
 RUN node -v && npm -v && git --version
 
-
+# Establecer la versión de code-server
 ENV VERSION=4.93.1
 
 # Descargar e instalar code-server usando el archivo .deb
@@ -28,7 +28,7 @@ RUN curl -fOL https://github.com/coder/code-server/releases/download/v$VERSION/c
 EXPOSE 8080
 
 # Configurar la variable de entorno para la contraseña
-ENV PASS="kachina"  
+ENV PASS="kachina" 
 
 # Comando para ejecutar code-server con autenticación usando la variable de entorno PASS
 CMD ["sh", "-c", "code-server --host 0.0.0.0 --port 8080 --auth password --password \"$PASS\""]
