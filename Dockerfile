@@ -1,34 +1,32 @@
-# Usa la imagen base de Alpine
-FROM alpine:latest
+# Usa una imagen base de Arch Linux
+FROM archlinux:latest
 
-# Establece el idioma y la localización
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
-
-# Instala dependencias necesarias
-RUN apk update && apk add --no-cache \
-    curl \
+# Actualiza el sistema e instala las dependencias necesarias
+RUN pacman -Syu --noconfirm && \
+    pacman -S --noconfirm \
+    base-devel \
     git \
+    python \
+    python-pip \
+    krb5 \
     nodejs \
     npm \
-    sqlite \
-    python3 \
-    make \
-    g++ \
-    bash \
-    && rm -rf /var/cache/apk/*
+    curl \
+    wget \
+    vim \
+    && pacman -Scc --noconfirm
 
-# Instala code-server utilizando npm, con todas las dependencias necesarias
+# Instala code-server con permisos globales (--unsafe-perm)
 RUN npm install -g code-server@4.93.1 --unsafe-perm
+
+# Crea un directorio de trabajo para code-server
+WORKDIR /root/project
+
+# Expone el puerto 8080 (donde code-server estará escuchando)
+EXPOSE 8080
 
 # Establece una contraseña para iniciar sesión en code-server
 ENV PASSWORD=kachinateamo
 
-# Establece el directorio de trabajo
-WORKDIR /home/coder/project
-
-# Expone el puerto de code-server
-EXPOSE 8080
-
-# Inicia code-server con autenticación de contraseña
-CMD ["code-server", "--host", "0.0.0.0", "--port", "8080", "--auth", "password"]
+# Inicia code-server cuando el contenedor esté en ejecución
+CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "--auth", "password", "--disable-telemetry"]
